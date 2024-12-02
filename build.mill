@@ -1,0 +1,69 @@
+import mill._
+import mill.scalalib._
+// import $ivy.`com.goyeau::mill-scalafix:0.4.2`
+// import com.goyeau.mill.scalafix.ScalafixModule
+
+// TODO Scalafix (mill-scalafix is not available for mill 0.12.x yet)
+// TODO review scalac options for Scala 3
+trait BaseModule extends ScalaModule /*with ScalafixModule*/ {
+  override def scalaVersion = "3.5.2"
+  override def scalacOptions = Seq(
+      "-encoding",
+      "utf8",
+      "-deprecation",
+      "-feature",
+      "-unchecked",
+      "-language:experimental.macros",
+      "-language:higherKinds",
+      "-language:implicitConversions",
+      "-Xkind-projector",
+      "-Wvalue-discard",
+      // "-Wnonunit-statements",
+      // "-Wunused:implicits",
+      // "-Wunused:explicits",
+      // "-Wunused:imports",
+      // "-Wunused:locals",
+      // "-Wunused:params",
+      // "-Wunused:privates",
+      // "-Xfatal-warnings",
+    )
+
+  trait Tests extends ScalaTests with TestModule.Munit {
+    def ivyDeps = Agg(ivy"org.scalameta::munit:1.0.2")
+  }
+}
+
+object common extends BaseModule {
+  object test extends Tests
+}
+
+trait AocModule extends BaseModule {
+  override def moduleDeps = Seq(common)
+  object test extends Tests
+}
+
+object day01 extends AocModule
+object day02 extends AocModule
+object day03 extends AocModule
+object day04 extends AocModule
+object day05 extends AocModule
+object day06 extends AocModule
+object day07 extends AocModule
+object day08 extends AocModule
+object day09 extends AocModule
+object day10 extends AocModule
+object day11 extends AocModule
+object day12 extends AocModule
+object day13 extends AocModule
+object day14 extends AocModule
+object day15 extends AocModule
+object day16 extends AocModule
+object day17 extends AocModule
+object day18 extends AocModule
+object day19 extends AocModule
+object day20 extends AocModule
+object day21 extends AocModule
+object day22 extends AocModule
+object day23 extends AocModule
+object day24 extends AocModule
+object day25 extends AocModule
