@@ -16,5 +16,7 @@ class MainSuite extends FunSuite:
     assertEquals(part1(reports), 2)
   }
 
-  test("part 2") {}
+  test("part 2") {
+    assertEquals(part2(reports), 4)
+  }
 end MainSuite

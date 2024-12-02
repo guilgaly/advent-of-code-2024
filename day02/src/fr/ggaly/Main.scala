@@ -6,13 +6,20 @@ package fr.ggaly
 
   println(s"Part 1 result: ${part1(reports)}")
 
-  println(s"Part 2 result: ${part2()}")
+  println(s"Part 2 result: ${part2(reports)}")
 
 def part1(reports: List[List[Int]]): Int =
   reports.count(report => safelyIncreasing(report) || safelyDecreasing(report))
 
-def part2(): Int =
-  0
+def part2(reports: List[List[Int]]): Int =
+  reports.count { report =>
+    safelyIncreasing(report)
+    || safelyDecreasing(report)
+    || report.indices.exists { i =>
+      val patched = report.patch(i, Nil, 1)
+      safelyIncreasing(patched) || safelyDecreasing(patched)
+    }
+  }
 
 private def safelyIncreasing(report: List[Int]): Boolean =
   report
