@@ -29,7 +29,7 @@ trait BaseModule extends ScalaModule /*with ScalafixModule*/ {
     )
 
   trait Tests extends ScalaTests with TestModule.Munit {
-    def ivyDeps = Agg(ivy"org.scalameta::munit:1.0.2")
+    def ivyDeps = Agg(ivy"org.scalameta::munit:1.0.3")
   }
 }
 
