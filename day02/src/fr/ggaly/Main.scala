@@ -1,7 +1,7 @@
 package fr.ggaly
 
 @main def main(): Unit =
-  val input = Input.readLines
+  val input = Input.readLines()
   val reports = input.map(line => line.split(' ').map(_.toInt).toList)
 
   println(s"Part 1 result: ${part1(reports)}")

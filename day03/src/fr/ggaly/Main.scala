@@ -1,7 +1,7 @@
 package fr.ggaly
 
 @main def main(): Unit =
-  val input = Input.read
+  val input = Input.read()
 
   println(s"Part 1 result: ${part1(input)}")
 

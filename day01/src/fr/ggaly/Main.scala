@@ -1,7 +1,7 @@
 package fr.ggaly
 
 @main def main(): Unit =
-  val input = Input.readLines
+  val input = Input.readLines()
   val (list1, list2) = input.map { line =>
     val split = line.split("\\s+").map(_.toInt)
     (split(0), split(1))
