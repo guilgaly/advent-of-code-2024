@@ -7,7 +7,10 @@ import scala.collection.mutable
 
   println(s"Part 1 result: ${part1(input)}")
 
-  println(s"Part 2 result: ${part2(input)}")
+  println(s"Part 2 result: ${part2Naive(input)} (naive)")
+
+  println(s"Part 2 result: ${part2Optimized(input)} (optimized)")
+end main
 
 def part1(input: String): Long =
   val diskMap = input.map(_.asDigit).toList
@@ -38,20 +41,19 @@ def part1(input: String): Long =
     .sum
 end part1
 
-def part2(input: String): Long =
+def part2Naive(input: String): Long =
   val diskMap = input.map(_.asDigit).toList
+  val totalLength = diskMap.sum
 
   val files = mutable.Buffer.empty[(Int, Int)] // fileId -> (startIdx, endIdx)
   var isFile = true
   var currIdx = 0
   for entry <- diskMap do
-    if isFile then
-      files.append((currIdx, currIdx + entry - 1))
+    if isFile then files.append((currIdx, currIdx + entry - 1))
     currIdx += entry
     isFile = !isFile
   val isFree = mutable.Buffer.fill(currIdx)(true)
-  for case (start, end) <- files do
-    for i <- start to end do isFree(i) = false
+  for case (start, end) <- files do for i <- start to end do isFree(i) = false
 
   val maxFileId = files.size - 1
   for fileId <- maxFileId.to(0, -1) do
@@ -70,8 +72,58 @@ def part2(input: String): Long =
   files.zipWithIndex.map { case ((start, end), fileId) =>
     (start to end).map(idx => (fileId * idx).toLong).sum
   }.sum
+end part2Naive
 
-end part2
+def part2Optimized(input: String): Long =
+  val diskMap = input.map(_.asDigit).toList
+
+  // index = fileId, value = (startIdx, length)
+  val files = mutable.Buffer.empty[(Int, Int)]
+  // value = (startIdx, length)
+  val freeSpaces = mutable.ArrayDeque.empty[(Int, Int)]
+
+  var isFile = true
+  var currIdx = 0
+  for entryLength <- diskMap do
+    if isFile then files.append((currIdx, entryLength))
+    else if entryLength > 0 then
+      val _ = freeSpaces.append((currIdx, entryLength))
+    currIdx += entryLength
+    isFile = !isFile
+
+  for ((fileStart, fileLength), fileId) <- files.zipWithIndex.reverseIterator do
+    freeSpaces.iterator
+      .takeWhile { case (freeSpaceStart, _) => freeSpaceStart < fileStart }
+      .zipWithIndex
+      .find { case ((_, freeSpaceLength), _) =>
+        freeSpaceLength >= fileLength
+      } match
+      case Some(((freeSpaceStart, freeSpaceLength), freeSpaceIdx)) =>
+        files(fileId) = (freeSpaceStart, fileLength)
+        if freeSpaceLength > fileLength then
+          freeSpaces.update(
+            freeSpaceIdx,
+            (freeSpaceStart + fileLength, freeSpaceLength - fileLength),
+          )
+        else freeSpaces.remove(freeSpaceIdx)
+      case None =>
+  end for
+
+  files.zipWithIndex.map { case ((start, length), fileId) =>
+    (start until start + length).map(idx => (fileId * idx).toLong).sum
+  }.sum
+end part2Optimized
 
 private def printDisk(disk: mutable.Buffer[Int]): Unit =
   println(disk.map(b => if b == -1 then "." else b.toString).mkString)
+
+private def printFiles(
+    files: mutable.Buffer[(Int, Int)],
+    totalLength: Int,
+): Unit =
+  val arr = Array.fill(totalLength)('.')
+  for ((start, length), fileId) <- files.zipWithIndex do
+    for i <- start until start + length do
+      arr(i) = fileId.toString.toCharArray.head
+  println(arr.mkString)
+end printFiles

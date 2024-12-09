@@ -9,7 +9,11 @@ class MainSuite extends FunSuite:
     assertEquals(part1(testInput), 1928L)
   }
 
-  test("part 2") {
-    assertEquals(part2(testInput), 2858L)
+  test("part 2 (naive)") {
+    assertEquals(part2Naive(testInput), 2858L)
+  }
+
+  test("part 2 (optimized)") {
+    assertEquals(part2Optimized(testInput), 2858L)
   }
 end MainSuite
