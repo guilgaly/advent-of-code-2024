@@ -3,6 +3,8 @@ package fr.ggaly
 import munit.FunSuite
 
 class MainSuite extends FunSuite:
-  test("part 1") {}
+  private val testInput = List(125L, 17L)
 
-  test("part 2") {}
+  test("part 1") {
+    assertEquals(part1(testInput), 55312)
+  }
