@@ -123,7 +123,6 @@ private def printFiles(
 ): Unit =
   val arr = Array.fill(totalLength)('.')
   for ((start, length), fileId) <- files.zipWithIndex do
-    for i <- start until start + length do
-      arr(i) = fileId.toString.toCharArray.head
+    for i <- start until start + length do arr(i) = fileId.toString.toCharArray.head
   println(arr.mkString)
 end printFiles

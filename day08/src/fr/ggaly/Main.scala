@@ -57,9 +57,7 @@ private def parseInput(
   val xMax = input.head.length - 1
 
   val antennas = input.zipWithIndex
-    .flatMap((line, y) =>
-      line.zipWithIndex.collect { case (c, x) if c != '.' => (c, Point(x, y)) },
-    )
+    .flatMap((line, y) => line.zipWithIndex.collect { case (c, x) if c != '.' => (c, Point(x, y)) })
     .groupMap(_._1)(_._2)
 
   (xMax, yMax, antennas)
@@ -73,9 +71,7 @@ private def antinodes(
     .flatMap { (_, points) =>
       points
         .combinations(2)
-        .flatMap(combination =>
-          antennaPairAntinodes(combination.head, combination(1)),
-        )
+        .flatMap(combination => antennaPairAntinodes(combination.head, combination(1)))
     }
     .toSet
     .size

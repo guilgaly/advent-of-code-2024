@@ -29,9 +29,7 @@ final private case class TrailMap(map: Array[Array[Int]]):
   private val xMax: Int = map(0).length - 1
   private val yMax: Int = map.length - 1
   val trailHeads: List[Point] = map.iterator.zipWithIndex
-    .flatMap((line, y) =>
-      line.zipWithIndex.collect { case (0, x) => Point(x, y) },
-    )
+    .flatMap((line, y) => line.zipWithIndex.collect { case (0, x) => Point(x, y) })
     .toList
   def height(p: Point): Int =
     map(p.y)(p.x)

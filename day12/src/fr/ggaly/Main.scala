@@ -38,15 +38,12 @@ def part2(farm: Farm): Int =
       var bottomFence = false
       for x <- minX to maxX do
         val p = Coords(x, y)
-        if topFence && (!plots.contains(p) || plots.contains(p.top)) then
-          topFence = false
+        if topFence && (!plots.contains(p) || plots.contains(p.top)) then topFence = false
         else if !topFence && plots.contains(p) && !plots.contains(p.top) then
           topFence = true
           fenceCount += 1
-        if bottomFence && (!plots.contains(p) || plots.contains(p.bottom)) then
-          bottomFence = false
-        else if !bottomFence && plots.contains(p) && !plots.contains(p.bottom)
-        then
+        if bottomFence && (!plots.contains(p) || plots.contains(p.bottom)) then bottomFence = false
+        else if !bottomFence && plots.contains(p) && !plots.contains(p.bottom) then
           bottomFence = true
           fenceCount += 1
       end for
@@ -57,16 +54,13 @@ def part2(farm: Farm): Int =
       var rightFence = false
       for y <- minY to maxY do
         val p = Coords(x, y)
-        if leftFence && (!plots.contains(p) || plots.contains(p.left)) then
-          leftFence = false
+        if leftFence && (!plots.contains(p) || plots.contains(p.left)) then leftFence = false
         else if !leftFence && plots.contains(p) && !plots.contains(p.left)
         then
           leftFence = true
           fenceCount += 1
-        if rightFence && (!plots.contains(p) || plots.contains(p.right)) then
-          rightFence = false
-        else if !rightFence && plots.contains(p) && !plots.contains(p.right)
-        then
+        if rightFence && (!plots.contains(p) || plots.contains(p.right)) then rightFence = false
+        else if !rightFence && plots.contains(p) && !plots.contains(p.right) then
           rightFence = true
           fenceCount += 1
       end for
