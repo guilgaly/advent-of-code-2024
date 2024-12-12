@@ -14,10 +14,10 @@ def part1(farm: Farm): Int =
 
   regions.map { region =>
     val area = region.plots.size
-    val perimiter = region.plots.iterator
+    val perimeter = region.plots.iterator
       .map(_.neighbours.count(neighbour => !farm.is(neighbour, region.plant)))
       .sum
-    area * perimiter
+    area * perimeter
   }.sum
 end part1
 
