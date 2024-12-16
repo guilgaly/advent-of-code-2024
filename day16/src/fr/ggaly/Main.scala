@@ -6,28 +6,47 @@ import scala.collection.mutable
 @main def main(): Unit =
   val maze = parseInput(Input.readLines())
 
-  println(s"Part 1 result: ${part1(maze)}")
+  val (part1Result, part2Result) = part1and2(maze)
 
-  println(s"Part 2 result: ${part2(maze)}")
+  println(s"Part 1 result: $part1Result")
+  println(s"Part 2 result: $part2Result")
 
-def part1(maze: Maze): Int =
-  // Dijkstra's algorithm
-  val queue = mutable.PriorityQueue(Node(Position(maze.start, Right), 0))
-  val visited = mutable.HashSet.empty[Position]
+def part1and2(maze: Maze): (Int, Int) =
+  // Dijkstra's algorithm + keeping track of alternative ways to get to the same visited position with the same cost
+  val queue = mutable.PriorityQueue(Node(Position(maze.start, Right), 0, List.empty))
+  val visited = mutable.HashMap.empty[Position, (Int, Set[Coords])]
 
-  var result = 0
-  while result == 0 && queue.nonEmpty do
+  def enqueueNext(node: Node): Unit =
+    node.moveForward(maze).foreach(queue.enqueue(_))
+    queue.enqueue(node.turnLeft)
+    queue.enqueue(node.turnRight)
+
+  var bestCost = 0
+  var bestPath = List.empty[Position]
+  while bestCost == 0 && queue.nonEmpty do
     val node = queue.dequeue()
-    if node.position.coords == maze.end then result = node.cost
-    else if visited.add(node.position) then
-      node.moveForward(maze).foreach(queue.enqueue(_))
-      queue.enqueue(node.turnLeft)
-      queue.enqueue(node.turnRight)
+    if node.position.coords == maze.end then
+      bestCost = node.cost
+      bestPath = node.position :: node.walked
 
-  result
-end part1
+    visited.get(node.position) match
+      case Some((cost, knownPaths)) if node.cost == cost =>
+        visited.addOne(node.position, (cost, knownPaths ++ node.walked.map(_.coords)))
+        enqueueNext(node)
+      case None =>
+        visited.addOne(node.position, (node.cost, node.walked.map(_.coords).toSet))
+        enqueueNext(node)
+      case _ =>
+    end match
+  end while
 
-def part2(maze: Maze): Int = 0
+  val bestTiles = mutable.HashSet.empty[Coords]
+  for tile <- bestPath do
+    bestTiles.add(tile.coords)
+    bestTiles.addAll(visited(tile)._2)
+
+  (bestCost, bestTiles.size)
+end part1and2
 
 final case class Position(coords: Coords, direction: Direction):
   def turnRight: Position = direction match
@@ -48,11 +67,12 @@ final case class Position(coords: Coords, direction: Direction):
     else Some(copy(coords = newCoords))
 end Position
 
-final case class Node(position: Position, cost: Int) extends Ordered[Node]:
+final case class Node(position: Position, cost: Int, walked: List[Position]) extends Ordered[Node]:
   override def compare(that: Node): Int = that.cost.compare(this.cost)
-  def turnRight: Node = Node(position.turnRight, cost + 1000)
-  def turnLeft: Node = Node(position.turnLeft, cost + 1000)
-  def moveForward(maze: Maze): Option[Node] = position.moveForward(maze).map(Node(_, cost + 1))
+  def turnRight: Node = Node(position.turnRight, cost + 1000, position :: walked)
+  def turnLeft: Node = Node(position.turnLeft, cost + 1000, position :: walked)
+  def moveForward(maze: Maze): Option[Node] =
+    position.moveForward(maze).map(Node(_, cost + 1, position :: walked))
 
 def parseInput(input: List[String]): Maze =
   val tiles =
@@ -81,6 +101,3 @@ final case class Coords(x: Long, y: Long):
     case Left  => copy(x = x - 1)
   def gps: Long = x + 100 * y
 end Coords
-
-final case class Weighted[T](value: T, var weight: Long) extends Ordered[Weighted[T]]:
-  override def compare(that: Weighted[T]): Int = weight.compare(that.weight)

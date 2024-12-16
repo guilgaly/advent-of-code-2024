@@ -46,9 +46,12 @@ class MainSuite extends FunSuite:
   )
 
   test("part 1") {
-    assertEquals(part1(testMaze1), 7036)
-    assertEquals(part1(testMaze2), 11048)
+    assertEquals(part1and2(testMaze1)._1, 7036)
+    assertEquals(part1and2(testMaze2)._1, 11048)
   }
 
-  test("part 2") {}
+  test("part 2") {
+    assertEquals(part1and2(testMaze1)._2, 45)
+    assertEquals(part1and2(testMaze2)._2, 64)
+  }
 end MainSuite
