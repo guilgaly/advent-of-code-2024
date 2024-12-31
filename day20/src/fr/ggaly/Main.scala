@@ -1,7 +1,9 @@
 package fr.ggaly
 
+import fr.ggaly.cartesiancoords.{BaseGrid, Coords}
+import fr.ggaly.cartesiancoords.Direction.{Down, Left, Right, Up}
+
 import scala.annotation.{tailrec, targetName}
-import Direction.*
 
 @main def main(): Unit =
   val maze = parseInput(Input.readLines())
@@ -49,28 +51,17 @@ def parseInput(input: List[String]): Maze =
   input.zipWithIndex
     .flatMap { case (line, y) => line.zipWithIndex.map { case (c, x) => (c, x, y) } }
     .foldLeft(Maze(Set.empty, width, height, Coords(0, 0), Coords(0, 0))) {
-      case (acc, ('#', x, y)) => acc.copy(walls = acc.walls + Coords(x, y))
+      case (acc, ('#', x, y)) => acc.copy(blocked = acc.blocked + Coords(x, y))
       case (acc, ('S', x, y)) => acc.copy(start = Coords(x, y))
       case (acc, ('E', x, y)) => acc.copy(end = Coords(x, y))
       case (acc, _)           => acc
     }
 end parseInput
 
-final case class Maze(walls: Set[Coords], width: Int, height: Int, start: Coords, end: Coords):
-  def neighbours(c: Coords): List[Coords] = List(c + Up, c + Right, c + Down, c + Left)
-    .filter { case Coords(x, y) => x >= 0 && x < width && y >= 0 && y < height }
-  def accessibleNeighbours(c: Coords): List[Coords] = neighbours(c).filter(c => !walls.contains(c))
-  def blockedNeighbours(c: Coords): List[Coords] = neighbours(c).filter(c => walls.contains(c))
-
-object Direction:
-  val Up: Coords = Coords(0, -1)
-  val Right: Coords = Coords(1, 0)
-  val Down: Coords = Coords(0, 1)
-  val Left: Coords = Coords(-1, 0)
-
-final case class Coords(x: Int, y: Int):
-  @targetName("add")
-  def +(vector: Coords): Coords = Coords(x + vector.x, y + vector.y)
-  @targetName("multiply")
-  def *(mult: Int): Coords = Coords(x * mult, y * mult)
-  def manhattanDistance(other: Coords): Int = math.abs(other.x - x) + math.abs(other.y - y)
+final case class Maze(
+    override val blocked: Set[Coords],
+    width: Int,
+    height: Int,
+    start: Coords,
+    end: Coords,
+) extends BaseGrid

@@ -1,5 +1,8 @@
 package fr.ggaly
 
+import fr.ggaly.cartesiancoords.{Coords, Direction}
+import fr.ggaly.cartesiancoords.Direction.Right
+
 import scala.annotation.tailrec
 
 object Part2:
@@ -7,22 +10,22 @@ object Part2:
     val initialState = parseWarehouse(warehouseInput)
     val moves = parseMoves(movesInput)
     val endState = moves.foldLeft(initialState)((state, dir) => state.next(dir))
-    endState.crates.map(_.gps).sum
+    endState.crates.map(_.crateGps).sum
 
   private def parseWarehouse(input: List[String]): State =
     input.zipWithIndex
       .flatMap((line, y) => line.zipWithIndex.map((c, x) => (c, Coords(2 * x, y))))
       .foldLeft(State(Set.empty, Set.empty, Coords(0, 0))) {
         case (state, ('@', coords)) => state.copy(robot = coords)
-        case (state, ('#', coords)) => state.copy(walls = state.walls + coords + coords.move(Right))
+        case (state, ('#', coords)) => state.copy(walls = state.walls + coords + (coords + Right))
         case (state, ('O', coords)) =>
-          state.copy(crates = state.crates + Crate(coords, coords.move(Right)))
+          state.copy(crates = state.crates + Crate(coords, coords + Right))
         case (state, _) => state
       }
 
   final case class Crate(a: Coords, b: Coords):
-    def gps: Long = a.gps
-    def move(dir: Direction): Crate = Crate(a.move(dir), b.move(dir))
+    def crateGps: Long = gps(a)
+    def move(dir: Direction): Crate = Crate(a + dir, b + dir)
 
   final case class State(walls: Set[Coords], crates: Set[Crate], robot: Coords):
     private def findCrate(target: Coords): Option[Crate] =
@@ -43,7 +46,7 @@ object Part2:
             .moveCratesTo(collisions.map(_.move(dir)), dir)
 
     def next(dir: Direction): State =
-      val rm = robot.move(dir)
+      val rm = robot + dir
       if walls.contains(rm) then this
       else
         findCrate(rm) match

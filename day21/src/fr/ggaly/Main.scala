@@ -1,5 +1,7 @@
 package fr.ggaly
 
+import fr.ggaly.cartesiancoords.Coords
+
 import scala.annotation.{tailrec, targetName}
 import scala.collection.mutable
 
@@ -158,16 +160,6 @@ case object DownKey extends DirectionKey('v', Coords(0, 1))
 case object LeftKey extends DirectionKey('<', Coords(-1, 0))
 case object AKey extends Key('A')
 final case class NumberKey(value: Int) extends Key(value.toString.head)
-
-final case class Coords(x: Int, y: Int):
-  @targetName("add")
-  def +(other: Coords): Coords = Coords(x + other.x, y + other.y)
-  @targetName("substract")
-  def -(other: Coords): Coords = Coords(x - other.x, y - other.y)
-  @targetName("multiply")
-  def *(mult: Int): Coords = Coords(x * mult, y * mult)
-  def manhattanDistance(other: Coords): Int = math.abs(other.x - x) + math.abs(other.y - y)
-end Coords
 
 private def parseInput(input: List[String]): List[List[Key]] =
   input.map(_.map {

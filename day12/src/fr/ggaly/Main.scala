@@ -1,5 +1,8 @@
 package fr.ggaly
 
+import fr.ggaly.cartesiancoords.{BaseGrid, Coords}
+import fr.ggaly.cartesiancoords.Direction.{Down, Left, Right, Up}
+
 import scala.collection.mutable
 
 @main def main(): Unit =
@@ -38,12 +41,12 @@ def part2(farm: Farm): Int =
       var bottomFence = false
       for x <- minX to maxX do
         val p = Coords(x, y)
-        if topFence && (!plots.contains(p) || plots.contains(p.top)) then topFence = false
-        else if !topFence && plots.contains(p) && !plots.contains(p.top) then
+        if topFence && (!plots.contains(p) || plots.contains(p + Up)) then topFence = false
+        else if !topFence && plots.contains(p) && !plots.contains(p + Up) then
           topFence = true
           fenceCount += 1
-        if bottomFence && (!plots.contains(p) || plots.contains(p.bottom)) then bottomFence = false
-        else if !bottomFence && plots.contains(p) && !plots.contains(p.bottom) then
+        if bottomFence && (!plots.contains(p) || plots.contains(p + Down)) then bottomFence = false
+        else if !bottomFence && plots.contains(p) && !plots.contains(p + Down) then
           bottomFence = true
           fenceCount += 1
       end for
@@ -54,13 +57,13 @@ def part2(farm: Farm): Int =
       var rightFence = false
       for y <- minY to maxY do
         val p = Coords(x, y)
-        if leftFence && (!plots.contains(p) || plots.contains(p.left)) then leftFence = false
-        else if !leftFence && plots.contains(p) && !plots.contains(p.left)
+        if leftFence && (!plots.contains(p) || plots.contains(p + Left)) then leftFence = false
+        else if !leftFence && plots.contains(p) && !plots.contains(p + Left)
         then
           leftFence = true
           fenceCount += 1
-        if rightFence && (!plots.contains(p) || plots.contains(p.right)) then rightFence = false
-        else if !rightFence && plots.contains(p) && !plots.contains(p.right) then
+        if rightFence && (!plots.contains(p) || plots.contains(p + Right)) then rightFence = false
+        else if !rightFence && plots.contains(p) && !plots.contains(p + Right) then
           rightFence = true
           fenceCount += 1
       end for
@@ -75,8 +78,8 @@ private def findRegions(farm: Farm): List[Region] =
   var regions = List.empty[Region]
 
   for
-    y <- 0 to farm.maxY
-    x <- 0 to farm.maxX
+    y <- 0 until farm.height
+    x <- 0 until farm.width
     startingPos = Coords(x, y)
     if !explored.contains(startingPos)
   do
@@ -96,24 +99,15 @@ private def findRegions(farm: Farm): List[Region] =
   regions
 end findRegions
 
-final case class Coords(x: Int, y: Int):
-  def neighbours: Set[Coords] = Set(left, top, right, bottom)
-  def left: Coords = Coords(x - 1, y)
-  def right: Coords = Coords(x + 1, y)
-  def top: Coords = Coords(x, y - 1)
-  def bottom: Coords = Coords(x, y + 1)
+final case class Farm(plots: Array[Array[Char]]) extends BaseGrid:
+  val width: Int = plots(0).length
+  val height: Int = plots.length
 
-final case class Farm(plots: Array[Array[Char]]):
-  val maxX: Int = plots(0).length - 1
-  val maxY: Int = plots.length - 1
   def get(pos: Coords): Char =
     plots(pos.y)(pos.x)
-  def exists(pos: Coords): Boolean =
-    pos.x >= 0 && pos.x <= maxX && pos.y >= 0 && pos.y <= maxY
-  def getOpt(pos: Coords): Option[Char] =
-    if exists(pos) then Some(get(pos)) else None
+
   def is(pos: Coords, plant: Char): Boolean =
-    getOpt(pos).contains(plant)
+    contains(pos) && get(pos) == plant
 end Farm
 
 final case class Region(plant: Char, plots: Set[Coords])

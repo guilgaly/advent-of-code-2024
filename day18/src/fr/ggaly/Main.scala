@@ -1,6 +1,8 @@
 package fr.ggaly
 
-import scala.annotation.{tailrec, targetName}
+import fr.ggaly.cartesiancoords.{BaseGrid, Coords}
+
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 @main def main(): Unit =
@@ -29,7 +31,7 @@ private def solve(input: List[Coords], memorySize: MemorySize, fallenBlocks: Int
   val accessibleCoords = Array.fill(memorySize.height)(Array.fill(memorySize.width)(true))
   for Coords(x, y) <- input.take(fallenBlocks) do accessibleCoords(y)(x) = false
 
-  val target = Coords(memorySize.xMax, memorySize.yMax)
+  val target = Coords(memorySize.width - 1, memorySize.height - 1)
   val visited = mutable.HashSet.empty[Coords]
   val queue = mutable.Queue((Coords(0, 0), 0)) // (coord, number of steps)
   var result: Option[Int] = None
@@ -39,7 +41,7 @@ private def solve(input: List[Coords], memorySize: MemorySize, fallenBlocks: Int
     else if !visited.contains(coords) then
       visited.add(coords)
       memorySize
-        .neighbours(coords)
+        .accessibleNeighbours(coords)
         .filter(c => accessibleCoords(c.y)(c.x))
         .foreach(c => queue.enqueue((c, steps + 1)))
   end while
@@ -53,22 +55,7 @@ def parseInput(input: List[String]): List[Coords] =
     Coords(x.toInt, y.toInt)
   }
 
-object Direction:
-  val Up: Coords = Coords(0, -1)
-  val Right: Coords = Coords(1, 0)
-  val Down: Coords = Coords(0, 1)
-  val Left: Coords = Coords(-1, 0)
+object MemorySize:
+  def apply(xMax: Int, yMax: Int): MemorySize = new MemorySize(xMax + 1, yMax + 1)
 
-final case class Coords(x: Int, y: Int):
-  @targetName("add")
-  def +(vector: Coords): Coords = Coords(x + vector.x, y + vector.y)
-  @targetName("multiply")
-  def *(mult: Int): Coords = Coords(x * mult, y * mult)
-
-final case class MemorySize(xMax: Int, yMax: Int):
-  val width: Int = xMax + 1
-  val height: Int = yMax + 1
-  def neighbours(coords: Coords): List[Coords] =
-    val Coords(x, y) = coords
-    List(Coords(x, y - 1), Coords(x + 1, y), Coords(x, y + 1), Coords(x - 1, y))
-      .filter { case Coords(x, y) => x >= 0 && x <= xMax && y >= 0 && y <= yMax }
+final case class MemorySize(width: Int, height: Int) extends BaseGrid

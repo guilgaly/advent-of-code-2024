@@ -1,7 +1,8 @@
 package fr.ggaly
 
-import scala.annotation.targetName
 import scala.collection.mutable
+import fr.ggaly.cartesiancoords.{BaseGrid, Coords, Direction}
+import fr.ggaly.cartesiancoords.Direction.Right
 
 @main def main(): Unit =
   val maze = parseInput(Input.readLines())
@@ -49,21 +50,13 @@ def part1and2(maze: Maze): (Int, Int) =
 end part1and2
 
 final case class Position(coords: Coords, direction: Direction):
-  def turnRight: Position = direction match
-    case Up    => copy(direction = Right)
-    case Right => copy(direction = Down)
-    case Down  => copy(direction = Left)
-    case Left  => copy(direction = Up)
+  def turnRight: Position = copy(direction = direction.turnRight)
 
-  def turnLeft: Position = direction match
-    case Up    => copy(direction = Left)
-    case Right => copy(direction = Up)
-    case Down  => copy(direction = Right)
-    case Left  => copy(direction = Down)
+  def turnLeft: Position = copy(direction = direction.turnLeft)
 
   def moveForward(maze: Maze): Option[Position] =
-    val newCoords = coords.move(direction)
-    if maze.walls.contains(newCoords) then None
+    val newCoords = coords + direction
+    if maze.blocked.contains(newCoords) then None
     else Some(copy(coords = newCoords))
 end Position
 
@@ -81,23 +74,9 @@ def parseInput(input: List[String]): Maze =
   val end = tiles.collectFirst { case ('E', coords) => coords }.get
   Maze(tiles.collect { case ('#', coords) => coords }.toSet, start, end)
 
-final case class Maze(walls: Set[Coords], start: Coords, end: Coords)
+final case class Maze(override val blocked: Set[Coords], start: Coords, end: Coords)
+    extends BaseGrid:
+  override val width: Int = blocked.map(_.x).max + 1
+  override val height: Int = blocked.map(_.y).max + 1
 
-sealed trait Direction
-case object Up extends Direction
-case object Right extends Direction
-case object Down extends Direction
-case object Left extends Direction
-
-final case class Coords(x: Long, y: Long):
-  @targetName("add")
-  def +(vector: Coords): Coords = Coords(x + vector.x, y + vector.y)
-  @targetName("multiply")
-  def *(mult: Long): Coords = Coords(x * mult, y * mult)
-  def move(d: Direction): Coords = d match
-    case Up    => copy(y = y - 1)
-    case Right => copy(x = x + 1)
-    case Down  => copy(y = y + 1)
-    case Left  => copy(x = x - 1)
-  def gps: Long = x + 100 * y
-end Coords
+def gps(p: Coords): Int = p.x + 100 * p.y

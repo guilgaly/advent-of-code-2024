@@ -2,8 +2,9 @@ package fr.ggaly
 
 import java.io.PrintStream
 import java.nio.file.{Files, Path, Paths}
-import scala.annotation.targetName
 import scala.util.Using
+
+import fr.ggaly.cartesiancoords.{BaseGrid, Coords}
 
 @main def main(): Unit =
   val input = parseInput(Input.readLines())
@@ -77,21 +78,15 @@ def parseInput(lines: List[String]): List[Robot] =
       .findFirstMatchIn(line)
       .getOrElse(throw IllegalArgumentException(s"Unparsable line $line"))
     Robot(
-      Coords(matched.group(1).toLong, matched.group(2).toLong),
-      Coords(matched.group(3).toLong, matched.group(4).toLong),
+      Coords(matched.group(1).toInt, matched.group(2).toInt),
+      Coords(matched.group(3).toInt, matched.group(4).toInt),
     )
   }
 end parseInput
 
-final case class Coords(x: Long, y: Long):
-  @targetName("add")
-  def +(vector: Coords): Coords = Coords(x + vector.x, y + vector.y)
-  @targetName("multiply")
-  def *(mult: Long): Coords = Coords(x * mult, y * mult)
-
 final case class Robot(position: Coords, speed: Coords)
 
-final case class Space(width: Long, height: Long):
+final case class Space(width: Int, height: Int) extends BaseGrid:
   private val xMid = width / 2
   private val yMid = height / 2
 
@@ -116,8 +111,8 @@ final case class Space(width: Long, height: Long):
 
   def printMap(robots: List[Robot], o: PrintStream): Unit =
     val robotsMap = robots.groupMapReduce(_.position)(_ => 1)(_ + _)
-    for y <- 0L until height do
-      for x <- 0L until width do
+    for y <- 0 until height do
+      for x <- 0 until width do
         robotsMap.get(Coords(x, y)) match
           case Some(count) => o.print(count)
           case None        => o.print(".")

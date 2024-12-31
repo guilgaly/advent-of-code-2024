@@ -1,5 +1,7 @@
 package fr.ggaly
 
+import fr.ggaly.cartesiancoords.{Coords, Direction}
+
 import scala.annotation.tailrec
 
 object Part1:
@@ -7,7 +9,7 @@ object Part1:
     val initialState = parseWarehouse(warehouseInput)
     val moves = parseMoves(movesInput)
     val endState = moves.foldLeft(initialState)((state, dir) => state.next(dir))
-    endState.crates.map(_.gps).sum
+    endState.crates.map(gps).sum
 
   private def parseWarehouse(input: List[String]): State =
     input.zipWithIndex
@@ -23,14 +25,14 @@ object Part1:
     @tailrec
     private def moveCrateTo(target: Coords, dir: Direction): Option[State] =
       if walls.contains(target) then None
-      else if crates.contains(target) then moveCrateTo(target.move(dir), dir)
+      else if crates.contains(target) then moveCrateTo(target + dir, dir)
       else Some(copy(crates = crates + target))
 
     def next(dir: Direction): State =
-      val rm = robot.move(dir)
+      val rm = robot + dir
       if walls.contains(rm) then this
       else if crates.contains(rm) then
-        copy(crates = crates - rm, robot = rm).moveCrateTo(rm.move(dir), dir).getOrElse(this)
+        copy(crates = crates - rm, robot = rm).moveCrateTo(rm + dir, dir).getOrElse(this)
       else copy(robot = rm)
   end State
 end Part1

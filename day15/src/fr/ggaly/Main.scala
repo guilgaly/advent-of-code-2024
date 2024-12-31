@@ -1,6 +1,7 @@
 package fr.ggaly
 
-import scala.annotation.targetName
+import fr.ggaly.cartesiancoords.{Coords, Direction}
+import fr.ggaly.cartesiancoords.Direction.{Down, Left, Right, Up}
 
 @main def main(): Unit =
   val warehouseInput = Input.readLines("warehouse.txt")
@@ -17,21 +18,4 @@ def parseMoves(input: String): List[Direction] = input.collect {
   case '<' => Left
 }.toList
 
-sealed trait Direction
-case object Up extends Direction
-case object Right extends Direction
-case object Down extends Direction
-case object Left extends Direction
-
-final case class Coords(x: Long, y: Long):
-  @targetName("add")
-  def +(vector: Coords): Coords = Coords(x + vector.x, y + vector.y)
-  @targetName("multiply")
-  def *(mult: Long): Coords = Coords(x * mult, y * mult)
-  def move(d: Direction): Coords = d match
-    case Up    => copy(y = y - 1)
-    case Right => copy(x = x + 1)
-    case Down  => copy(y = y + 1)
-    case Left  => copy(x = x - 1)
-  def gps: Long = x + 100 * y
-end Coords
+def gps(c: Coords): Int = c.x + 100 * c.y
